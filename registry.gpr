@@ -1,0 +1,37 @@
+
+with "shared";
+
+library project Registry is
+
+   type OS_Type is ("Windows_NT", "Unix");
+   OS_Name : OS_Type := external ("OS", "Unix");
+
+   for Source_Dirs use ("registry");
+
+   for Object_Dir use "obj/registry";
+   for Library_ALI_Dir use "lib/registry";
+   for Library_Dir use ".";
+   for Library_Name use "registry";
+   for Library_Kind use "dynamic";
+
+   package Compiler renames Shared.Compiler;
+
+   package Naming is
+      case OS_Name is
+         when "Windows_NT" =>
+            for Body ("Shared_Lib") use "shared_lib__windows.adb";
+         when others =>
+            for Body ("Shared_Lib") use "shared_lib__unix.adb";
+      end case;
+   end Naming;
+
+   package Linker is
+      case OS_Name is
+         when "Unix" =>
+            for Linker_Options use ("-ldl");
+         when others =>
+            null;
+      end case;
+   end Linker;
+
+end Registry;
